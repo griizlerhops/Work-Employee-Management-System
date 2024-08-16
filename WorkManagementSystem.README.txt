@@ -1,0 +1,211 @@
+: #ifndef PARTIME_H
+2: #define PARTIME_H
+3:
+4: #include "Staff.h"
+5:
+6: class Partime : public Staff {
+7: private:
+8: double hoursWorkedPerWeek;
+9:
+10: public:
+11: Partime(string fName = "", string lName = "", string id = "", double rate = 0, double hours = 0);
+12: void putData() override;
+13: double monthlyEarning() override;
+14: };
+15:
+16: #endif
+1: #include "Partime.h"
+2:
+3: using namespace std;
+4:
+5: Partime::Partime(string fName, string lName, string id, double rate, double hours)
+6: : Staff(fName, lName, id, rate), hoursWorkedPerWeek(hours) {}
+7:
+8: void Partime::putData() {
+9: Employee::putData();
+10: cout << "Hours work per month: " << hoursWorkedPerWeek * 4 << endl;
+11: cout << "Monthly Salary: " << monthlyEarning() << endl;
+12: }
+13:
+14: double Partime::monthlyEarning() {
+15: return hourlyRate * hoursWorkedPerWeek * 4;
+16: }
+17:
+18:
+1: #ifndef FACULTY_H
+2: #define FACULTY_H
+3:
+4: #include "Employee.h"
+5: #include "Education.h"
+6: #include <iostream>
+7:
+8:
+9: class Faculty : public Employee {
+10: public:
+11: enum Level { AS, AO, FU };
+12:
+13: private:
+14: Level level;
+15: Education edu;
+16:
+17: public:
+18: Faculty(string fName = "", string lName = "", string id = "",
+19: Level lvl = AS, Education ed = Education());
+20: void putData() override;
+21: double monthlyEarning() override;
+22: };
+23:
+24: #endif
+1: #include "Faculty.h"
+2:
+3:
+4: Faculty::Faculty(string fName, string lName, string id, Level lvl, Education ed)
+5: : Employee(fName, lName, id), level(lvl), edu(ed) {}
+6:
+7: void Faculty::putData() {
+8: Employee::putData();
+9: string levelStr = (level == AS ? "Assistant" : (level == AO ? "Associate" : "Full"));
+10: cout << levelStr << " Professor" << endl;
+11: cout << "Monthly Salary: " << monthlyEarning() << endl;
+12: }
+13:
+14: double Faculty::monthlyEarning() {
+15: const double FACULTY_MONTHLY_SALARY = 5000.00;
+16: switch (level) {
+17: case AS:
+18: return FACULTY_MONTHLY_SALARY;
+19: case AO:
+20: return FACULTY_MONTHLY_SALARY * 1.2;
+21: case FU:
+22: return FACULTY_MONTHLY_SALARY * 1.4;
+23: default:
+24: return 0;
+25: }
+26: }
+27:
+1: #include "Employee.h"
+2: #include <iostream>
+3:
+4: using namespace std;
+5:
+6: Employee::Employee(string fName, string lName, string id)
+7: : firstName(fName), lastName(lName), ID(id) {}
+8:
+9: void Employee::putData() {
+10: cout << "ID Employee number: " << ID << endl;
+11: cout << "Employee name: " << lastName << " " << firstName << endl;
+12: }
+1: #ifndef STAFF_H
+2: #define STAFF_H
+3: #include "Employee.h"
+4:
+5: using namespace std;
+6:
+7:
+8: class Staff : public Employee {
+9: protected:
+10: double hourlyRate;
+11:
+12: public:
+13: Staff(string fName = "", string lName = "", string id = "", double rate = 0);
+14: void putData() override;
+15: double monthlyEarning() override;
+16: };
+17:
+18: #endif
+1: #include "Staff.h"
+2: #include <iostream>
+3: using namespace std;
+4:
+5: Staff::Staff(string fName, string lName, string id, double rate)
+6: : Employee(fName, lName, id), hourlyRate(rate) {}
+7:
+8: void Staff::putData() {
+9: Employee::putData();
+10: cout << "Full Time" << endl;
+11: cout << "Monthly Salary: " << monthlyEarning() << endl;
+12: }
+13:
+14: double Staff::monthlyEarning() {
+15: const double STAFF_MONTHLY_HOURS_WORKED = 160;
+16: return hourlyRate * STAFF_MONTHLY_HOURS_WORKED;
+17: }
+18:
+1: #include <iostream>
+2: #include <string>
+3: #include <typeinfo>
+4: #include "Employee.h"
+5: #include "Staff.h"
+6: #include "Faculty.h"
+7: #include "Partime.h"
+8:
+9: using namespace std;
+10:
+11: int main() {
+12: Employee *emp[9];
+13: int n = 0;
+14:
+15: // Creating instances of various employees using dynamic memory allocation
+16: emp[n++] = new Staff("Allen", "Paita", "123", 50.00);
+17: emp[n++] = new Staff("Zapata", "Steven", "456", 35.00);
+18: emp[n++] = new Staff("Rios", "Enrique", "789", 40.00);
+19:
+20: Education ed1("Ph.D", "Engineering", 3);
+21: Education ed2("Ph.D", "English", 1);
+22: Education ed3("MS", "Physical Education", 0);
+23:
+24: emp[n++] = new Faculty("Johnson", "Anne", "243", Faculty::FU, ed1);
+25: emp[n++] = new Faculty("Bouris", "William", "791", Faculty::AO, ed2);
+26: emp[n++] = new Faculty("Andrade", "Christopher", "623", Faculty::AS, ed3);
+27:
+28: emp[n++] = new Partime("Guzman", "Augusto", "455", 35.00, 30);
+29: emp[n++] = new Partime("Depirro", "Martin", "678", 30.00, 15);
+30: emp[n++] = new Partime("Aldaco", "Marque", "945", 20, 35.00);
+31:
+32: double staffSalTotal = 0;
+33: double facSalTotal = 0;
+34: double ptSalTotal = 0;
+35:
+36:
+37: for (int i = 0; i < n; i++) {
+38: emp[i]->putData();
+39:
+40: if (typeid(*emp[i]) == typeid(Staff)) {
+41: staffSalTotal += emp[i]->monthlyEarning();
+42: } else if (typeid(*emp[i]) == typeid(Faculty)) {
+43: facSalTotal += emp[i]->monthlyEarning();
+44: } else if (typeid(*emp[i]) == typeid(Partime)) {
+45: ptSalTotal += emp[i]->monthlyEarning();
+46: }
+47:
+48: cout << endl;
+49: }
+50:
+51: double totalEmpSal = staffSalTotal + facSalTotal + ptSalTotal;
+52:
+53:
+54: cout << "Total monthly salary for all the part-time staff: $" << ptSalTotal << endl;
+55: cout << "Total monthly salary for faculty: $" << facSalTotal << endl;
+56: cout << "Total monthly salary for all staff: $" << staffSalTotal << endl;
+57: cout << "Total monthly salary for all employees: $" << totalEmpSal << endl;
+58:
+59: return 0;
+60: }
+61:
+1: #ifndef EDUCATION_H
+2: #define EDUCATION_H
+3:
+4: #include <string>
+5:
+6: class Education {
+7: private:
+8: string degree;
+9: string major;
+10: int research;
+11:
+12: public:
+13: Education(string deg = "", string maj = "", int res = 0) :
+14: degree(deg), major(maj), research(res) {}
+15: };
+16:
+17: #endif
